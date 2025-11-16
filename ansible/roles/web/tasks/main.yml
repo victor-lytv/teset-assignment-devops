@@ -1,0 +1,21 @@
+- name: Get nginx container name
+  ansible.builtin.command: terraform -chdir=../../terraform output -raw container_nginx
+  register: nginx_container_name
+  changed_when: false
+
+- name: Copy nginx config
+  community.docker.docker_container_copy_into:
+    container: "{{ nginx_container_name.stdout }}"
+    path: "{{ role_path }}/files/nginx/default.conf"
+    container_path: /etc/nginx/conf.d/default.conf
+
+- name: Copy www dir
+  community.docker.docker_container_copy_into:
+    container: "{{ nginx_container_name.stdout }}"
+    path: "{{ role_path }}/files/www/index.php"
+    container_path: /usr/share/nginx/html/index.php
+
+- name: Reload nginx config
+  ansible.builtin.command: docker exec {{ nginx_container_name.stdout }} nginx -s reload
+  changed_when: false
+

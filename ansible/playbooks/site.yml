@@ -1,0 +1,4 @@
+- name: Test task
+  hosts: all
+  roles:
+    - "roles/web"
