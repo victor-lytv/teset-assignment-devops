@@ -1,6 +1,8 @@
 - name: Get nginx container name
-  ansible.builtin.command: terraform -chdir=../../terraform output -raw container_nginx
-  register: nginx_container_name
+  ansible.builtin.command:
+    chdir: ../../terraform
+    cmd: terraform output -raw container_nginx
+  register: web_nginx_container_name
   changed_when: false
 
 - name: Copy nginx config
@@ -16,6 +18,5 @@
     container_path: /usr/share/nginx/html/index.php
 
 - name: Reload nginx config
-  ansible.builtin.command: docker exec {{ nginx_container_name.stdout }} nginx -s reload
+  ansible.builtin.command: docker exec {{ web_nginx_container_name.stdout }} nginx -s reload
   changed_when: false
-
