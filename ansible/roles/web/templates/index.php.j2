@@ -1,0 +1,10 @@
+<?php
+
+if (str_starts_with($_SERVER['REQUEST_URI'], '/healtz')) {
+   echo json_encode([
+        "status" => http_response_code() < 300 ? 'ok' : 'error',
+        "service" => "nginx",
+        "env" => getenv('APP_ENV')
+   ]);
+}
+

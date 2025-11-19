@@ -1,0 +1,3 @@
+- name: Reload nginx
+  ansible.builtin.command: "docker exec {{ web_nginx_container_name.stdout }} nginx -s reload"
+  changed_when: false

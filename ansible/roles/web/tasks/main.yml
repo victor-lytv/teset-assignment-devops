@@ -1,3 +1,10 @@
+- name: Temporary dir for compiled templates
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: compiled
+  register: web_temp_dir
+  changed_when: false
+
 - name: Get nginx container name
   ansible.builtin.command:
     chdir: ../../terraform
@@ -5,18 +12,38 @@
   register: web_nginx_container_name
   changed_when: false
 
+- name: Get php container name
+  ansible.builtin.command:
+    chdir: ../../terraform
+    cmd: terraform output -raw container_php
+  register: web_php_container_name
+  changed_when: false
+
+- name: Copy nginx config template into tmp
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nginx.conf.j2"
+    dest: "{{ web_temp_dir.path }}/nginx.conf"
+    mode: "0644"
+  register: web_nginx_config
+  changed_when: false
+
+- name: Copy index.php template into tmp
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/index.php.j2"
+    dest: "{{ web_temp_dir.path }}/index.php"
+    mode: "0644"
+  register: web_index_file
+  changed_when: false
+
 - name: Copy nginx config
   community.docker.docker_container_copy_into:
     container: "{{ web_nginx_container_name.stdout }}"
-    path: "{{ role_path }}/files/nginx/default.conf"
-    container_path: /etc/nginx/conf.d/default.conf
+    path: "{{ web_nginx_config.dest }}"
+    container_path: /etc/nginx/nginx.conf
+  notify: Reload nginx
 
-- name: Copy www dir
+- name: Copy index file
   community.docker.docker_container_copy_into:
     container: "{{ web_nginx_container_name.stdout }}"
-    path: "{{ role_path }}/files/www/index.php"
+    path: "{{ web_index_file.dest }}"
     container_path: /usr/share/nginx/html/index.php
-
-- name: Reload nginx config
-  ansible.builtin.command: docker exec {{ web_nginx_container_name.stdout }} nginx -s reload
-  changed_when: false
