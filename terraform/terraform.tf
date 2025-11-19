@@ -16,10 +16,6 @@ resource "docker_network" "web" {
   check_duplicate = true
 }
 
-resource "docker_volume" "php_fpm_sock" {
-  name = "${var.project_name}-php-fpm-sock"
-}
-
 resource "docker_volume" "www" {
   name = "${var.project_name}-www"
 }
@@ -33,8 +29,9 @@ resource "docker_image" "nginx" {
 }
 
 resource "docker_container" "nginx" {
-  image = docker_image.nginx.latest
-  name  = "${var.project_name}-nginx"
+  image        = docker_image.nginx.latest
+  name         = "${var.project_name}-nginx"
+  network_mode = "bridge"
   networks_advanced {
     name = docker_network.web.name
   }
@@ -43,25 +40,18 @@ resource "docker_container" "nginx" {
     external = var.host_port
   }
   volumes {
-    container_path = "/var/run/php-fpm"
-    volume_name    = docker_volume.php_fpm_sock.name
-  }
-  volumes {
     container_path = "/usr/share/nginx/html"
     volume_name    = docker_volume.www.name
   }
 }
 
 resource "docker_container" "php" {
-  image = docker_image.php.latest
-  name  = "${var.project_name}-php"
-  env   = ["APP_ENV=${var.app_env}"]
+  image        = docker_image.php.latest
+  name         = "${var.project_name}-php"
+  env          = ["APP_ENV=${var.app_env}"]
+  network_mode = "bridge"
   networks_advanced {
     name = docker_network.web.name
-  }
-  volumes {
-    container_path = "/var/run/php-fpm"
-    volume_name    = docker_volume.php_fpm_sock.name
   }
   volumes {
     container_path = "/var/www/html"

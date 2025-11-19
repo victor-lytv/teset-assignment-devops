@@ -8,3 +8,7 @@ output "container_php" {
   description = "PHP container name"
 }
 
+output "url" {
+  value       = "http://localhost:${var.host_port}/healtz"
+  description = "Healtz url"
+}
