@@ -21,3 +21,8 @@ curl http://localhost:8080/healthz
 ## Useful Links
 - Full task description: [INSTRUCTIONS.md](./INSTRUCTIONS.md)
 - Solution rationale: `Decisions.md`
+
+## CI/CD results
+- Terraform: https://github.com/victor-lytv/teset-assignment-devops/actions/runs/19529337893
+- Ansible: https://github.com/victor-lytv/teset-assignment-devops/actions/runs/19529337893
+
