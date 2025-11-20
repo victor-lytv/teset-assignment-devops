@@ -23,6 +23,6 @@ curl http://localhost:8080/healthz
 - Solution rationale: `Decisions.md`
 
 ## CI/CD results
-- Terraform: https://github.com/victor-lytv/teset-assignment-devops/actions/runs/19529337893
+- Terraform: https://github.com/victor-lytv/teset-assignment-devops/actions/runs/19530849933
 - Ansible: https://github.com/victor-lytv/teset-assignment-devops/actions/runs/19529337893
 
