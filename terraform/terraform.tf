@@ -12,7 +12,7 @@ provider "docker" {
 }
 
 resource "docker_network" "web" {
-  name            = "${var.project_name}-network"
+  name = "${var.project_name}-network"
 }
 
 resource "docker_volume" "www" {
