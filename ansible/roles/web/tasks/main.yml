@@ -35,6 +35,16 @@
   register: web_index_file
   changed_when: false
 
+- name: Ensure nginx container is running
+  community.docker.docker_container:
+    name: "{{ web_nginx_container_name.stdout }}"
+    state: started
+
+- name: Ensure php container is running
+  community.docker.docker_container:
+    name: "{{ web_php_container_name.stdout }}"
+    state: started
+
 - name: Copy nginx config
   community.docker.docker_container_copy_into:
     container: "{{ web_nginx_container_name.stdout }}"
@@ -47,3 +57,24 @@
     container: "{{ web_nginx_container_name.stdout }}"
     path: "{{ web_index_file.dest }}"
     container_path: /usr/share/nginx/html/index.php
+
+- name: Add logrotate apk package
+  community.docker.docker_container_exec:
+    container: "{{ web_nginx_container_name.stdout }}"
+    command: /bin/sh -c 'apk update && apk add --no-cache logrotate'
+  register: web_add_logrotate_cmd
+  changed_when: "web_add_logrotate_cmd.rc != 0"
+
+- name: Copy nginx-logrotate config template into tmp
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/nginx-logrotate.j2"
+    dest: "{{ web_temp_dir.path }}/nginx-logrotate"
+    mode: "0644"
+  register: web_logrotate_nginx_config
+  changed_when: false
+
+- name: Copy nginx-logrotate config
+  community.docker.docker_container_copy_into:
+    container: "{{ web_nginx_container_name.stdout }}"
+    path: "{{ web_logrotate_nginx_config.dest }}"
+    container_path: /etc/logrotate.d/nginx

@@ -1,6 +1,7 @@
 <?php
 
 if (str_starts_with($_SERVER['REQUEST_URI'], '/healtz')) {
+   header('Content-Type: application/json');
    echo json_encode([
         "status" => http_response_code() < 300 ? 'ok' : 'error',
         "service" => "nginx",
